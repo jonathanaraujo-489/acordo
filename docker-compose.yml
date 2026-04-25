@@ -1,32 +1,18 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:15-alpine
-    container_name: acordo_db
-    environment:
-      POSTGRES_DB: acordo_iphone
-      POSTGRES_USER: acordo_user
-      POSTGRES_PASSWORD: acordo_pass
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
   app:
     build: .
     container_name: acordo_app
     environment:
-      DATABASE_URL: postgresql://acordo_user:acordo_pass@db:5432/acordo_iphone
-      PIN_USUARIO: "2425"   # ← MUDE ESTE PIN
-      PIN_PATRON:  "5678"   # ← MUDE ESTE PIN
+      DATABASE_URL: postgresql://postgres:1d0bce023c2dd458d2d3@homolog_postgres:5432/postgres-homolog
+      PIN_USUARIO: "2425"
+      PIN_PATRON:  "5678"
     volumes:
       - uploads_data:/app/uploads
     ports:
       - "8000:8000"
-    depends_on:
-      - db
     restart: unless-stopped
 
 volumes:
-  postgres_data:
   uploads_data:

@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Text, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Text, Boolean, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime
@@ -10,7 +10,7 @@ from typing import Optional
 import os, base64, uuid, shutil
 
 # ─── CONFIG ───────────────────────────────────────────────────
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://acordo_user:acordo_pass@localhost:5432/acordo_iphone")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:1d0bce023c2dd458d2d3@homolog_postgres:5432/postgres-homolog")
 PIN_USUARIO  = os.getenv("PIN_USUARIO", "1234")   # seu PIN de acesso completo
 PIN_PATRON   = os.getenv("PIN_PATRON",  "5678")   # PIN do patrão (só visualização)
 
@@ -18,7 +18,12 @@ UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # ─── DB ───────────────────────────────────────────────────────
-engine = create_engine(DATABASE_URL)
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"options": "-csearch_path=acordo_iphone"},
+    pool_pre_ping=True,
+    pool_recycle=300
+)
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 
@@ -37,6 +42,11 @@ class Registro(Base):
     foto_in     = Column(String(300), nullable=True)   # path do arquivo
     foto_out    = Column(String(300), nullable=True)
     created_at  = Column(DateTime, default=datetime.utcnow)
+
+# Criar schema se não existir
+with engine.connect() as conn:
+    conn.execute(text("CREATE SCHEMA IF NOT EXISTS acordo_iphone"))
+    conn.commit()
 
 Base.metadata.create_all(bind=engine)
 
