@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Acordo iPhone">
+<meta name="theme-color" content="#0d0f14">
+<title>Acordo · iPhone 14 Pro Max</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#080a0f;--s1:#111318;--s2:#181c24;--s3:#1f2430;
+  --border:#252a36;--gold:#c9a84c;--gold2:#e8c97a;
+  --green:#3ecf8e;--red:#e05c5c;--blue:#5b9cf6;
+  --text:#e8eaf0;--muted:#6b7280;--r:14px;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;display:flex;flex-direction:column}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px}
+.login-screen.hide{display:none}
+.login-logo{font-size:3rem;margin-bottom:12px}
+.login-title{font-size:1.4rem;font-weight:700;color:var(--gold2);margin-bottom:6px;text-align:center}
+.login-sub{font-size:.75rem;color:var(--muted);margin-bottom:30px;text-align:center}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin-bottom:24px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);transition:.2s}
+.pin-dot.on{background:var(--gold);border-color:var(--gold)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:280px}
+.num-btn{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:18px;font-size:1.4rem;font-weight:600;color:var(--text);cursor:pointer;text-align:center;transition:.15s;font-family:'Sora',sans-serif}
+.num-btn:active{background:var(--s2);transform:scale(.95)}
+.num-btn.del{font-size:1rem;color:var(--muted)}
+.pin-error{color:var(--red);font-size:.78rem;margin-top:10px;text-align:center;min-height:20px}
+
+/* NAV */
+.nav{display:flex;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:1;min-width:60px;padding:12px 6px 10px;text-align:center;font-size:.6rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.2s;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.nav-btn .ico{font-size:1.1rem;display:block;margin-bottom:3px}
+.nav-btn.on{color:var(--gold2);border-bottom-color:var(--gold)}
+
+/* PAGES */
+.pages{flex:1;overflow:hidden;position:relative}
+.pg{position:absolute;inset:0;overflow-y:auto;padding:16px;display:none;-webkit-overflow-scrolling:touch}
+.pg.on{display:block}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1a1408,#0d0f14 60%,#0a1220);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px;position:relative;overflow:hidden;text-align:center}
+.hero::before{content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:200px;height:100px;background:radial-gradient(ellipse,rgba(201,168,76,.18),transparent 70%);pointer-events:none}
+.hero .ico{font-size:2rem;margin-bottom:6px}
+.hero h1{font-size:1.3rem;font-weight:700;color:var(--gold2);letter-spacing:-.02em}
+.hero p{font-size:.72rem;color:var(--muted);margin-top:3px;letter-spacing:.06em;text-transform:uppercase}
+.role-badge{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:4px 10px;border-radius:99px;font-size:.65rem;font-weight:600}
+.role-u{background:rgba(62,207,142,.12);color:var(--green);border:1px solid rgba(62,207,142,.2)}
+.role-p{background:rgba(91,156,246,.1);color:var(--blue);border:1px solid rgba(91,156,246,.2)}
+
+/* PROGRESS */
+.prog-wrap{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.prog-label{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:10px}
+.prog-bar{height:10px;background:var(--s3);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.prog-info{display:flex;justify-content:space-between;margin-top:8px;font-size:.7rem;color:var(--muted)}
+
+/* STATS */
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center}
+.stat .lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.stat .val{font-family:'JetBrains Mono',monospace;font-size:1.15rem;font-weight:500}
+.gold{color:var(--gold2)}.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.muted{color:var(--muted)}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.card-title{font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.card-title::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+/* LIST */
+.item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.item:last-child{border-bottom:none}
+.item-ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;margin-top:1px}
+.ico-paid{background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.25)}
+.ico-pend{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2)}
+.ico-hol{background:rgba(91,156,246,.1);border:1px solid rgba(91,156,246,.2)}
+.ico-exp{background:rgba(107,114,128,.08);border:1px solid rgba(107,114,128,.15)}
+.item-body{flex:1;min-width:0}
+.item-date{font-size:.68rem;color:var(--muted);margin-bottom:2px}
+.item-title{font-size:.88rem;font-weight:500}
+.item-sub{font-size:.65rem;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.item-amt{font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:500;align-self:center;white-space:nowrap}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:99px;font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.b-green{background:rgba(62,207,142,.12);color:var(--green);border:1px solid rgba(62,207,142,.2)}
+.b-gold{background:rgba(201,168,76,.12);color:var(--gold2);border:1px solid rgba(201,168,76,.2)}
+.b-muted{background:rgba(107,114,128,.08);color:var(--muted);border:1px solid rgba(107,114,128,.15)}
+.b-blue{background:rgba(91,156,246,.1);color:var(--blue);border:1px solid rgba(91,156,246,.2)}
+
+/* ALERT */
+.alert{padding:12px 14px;border-radius:10px;font-size:.78rem;line-height:1.55;margin-bottom:14px}
+.alert-gold{background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.18);color:var(--gold2)}
+.alert-blue{background:rgba(91,156,246,.07);border:1px solid rgba(91,156,246,.18);color:#8ab8ff}
+.alert-red{background:rgba(224,92,92,.07);border:1px solid rgba(224,92,92,.18);color:#ff9999}
+
+/* FORM */
+.fgroup{margin-bottom:13px}
+.fgroup label{display:block;font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.fgroup input,.fgroup select,.fgroup textarea{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--text);font-family:'Sora',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s}
+.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{border-color:var(--gold)}
+.fgroup select option{background:var(--s1)}
+
+/* BUTTONS */
+.btn{display:block;width:100%;padding:14px;border-radius:var(--r);border:none;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:600;cursor:pointer;transition:.2s}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1408}
+.btn-gold:active{filter:brightness(.92)}
+.btn-green{background:linear-gradient(135deg,#2d9e6e,#3ecf8e);color:#0d160e;margin-top:10px}
+.btn-green:active{filter:brightness(.92)}
+.btn-out{background:transparent;border:1px solid var(--border);color:var(--text);margin-top:10px}
+.btn-out:active{background:var(--s2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* CLOCK */
+.clock-box{text-align:center;padding:16px 0 10px}
+.clock-time{font-family:'JetBrains Mono',monospace;font-size:2.6rem;color:var(--gold2);letter-spacing:.05em}
+.clock-date{font-size:.72rem;color:var(--muted);margin-top:4px;text-transform:capitalize}
+
+/* STATUS BAR */
+.status-bar{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;margin-bottom:14px}
+.dot-live{width:9px;height:9px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 8px rgba(62,207,142,.6);animation:pulse 2s infinite}
+.dot-off{width:9px;height:9px;border-radius:50%;background:var(--muted);flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.status-text{font-size:.82rem;flex:1}
+.status-time{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--gold2)}
+
+/* CAMERA */
+.cam-box{background:var(--s2);border:1px dashed var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px;position:relative;min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--muted);font-size:.8rem}
+.cam-box img{width:100%;max-height:220px;object-fit:cover;display:block}
+.cam-timestamp{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.75);color:var(--gold2);font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:3px 7px;border-radius:4px}
+
+/* MAP */
+.map-box{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;margin-bottom:10px}
+.map-coords{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--blue);margin-top:6px;word-break:break-all}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:flex-end;justify-content:center}
+.overlay.on{display:flex}
+.modal{background:var(--s1);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:22px 18px 36px;width:100%;max-width:480px;animation:up .28s ease}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:38px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 18px}
+.modal h3{font-size:1.1rem;color:var(--gold2);margin-bottom:14px}
+.modal-body{font-size:.82rem;color:var(--muted);line-height:1.65;margin-bottom:18px}
+.modal-body b{color:var(--text)}
+
+/* THUMB */
+.thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#0d1a0f;padding:11px 22px;border-radius:99px;font-size:.82rem;font-weight:600;z-index:600;transition:transform .28s ease;white-space:nowrap;pointer-events:none}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--red);color:#fff}
+.toast.warn{background:var(--gold);color:#1a1408}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted);font-size:.85rem;gap:10px}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.sec-lbl{font-size:.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin:16px 0 10px}
+.div{height:1px;background:var(--border);margin:14px 0}
+
+/* Readonly overlay para patrão */
+.readonly-msg{background:rgba(91,156,246,.07);border:1px solid rgba(91,156,246,.18);border-radius:10px;padding:10px 14px;font-size:.75rem;color:#8ab8ff;margin-bottom:14px;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div class="login-screen" id="login-screen">
+  <div class="login-logo">📱</div>
+  <div class="login-title">Acordo iPhone 14 Pro Max</div>
+  <div class="login-sub">Digite seu PIN para acessar</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="numpad">
+    <button class="num-btn" onclick="pinKey('1')">1</button>
+    <button class="num-btn" onclick="pinKey('2')">2</button>
+    <button class="num-btn" onclick="pinKey('3')">3</button>
+    <button class="num-btn" onclick="pinKey('4')">4</button>
+    <button class="num-btn" onclick="pinKey('5')">5</button>
+    <button class="num-btn" onclick="pinKey('6')">6</button>
+    <button class="num-btn" onclick="pinKey('7')">7</button>
+    <button class="num-btn" onclick="pinKey('8')">8</button>
+    <button class="num-btn" onclick="pinKey('9')">9</button>
+    <button class="num-btn" onclick="pinKey('')"></button>
+    <button class="num-btn" onclick="pinKey('0')">0</button>
+    <button class="num-btn del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav" id="main-nav" style="display:none">
+  <div class="nav-btn on" onclick="go('resumo',this)"><span class="ico">📊</span>Resumo</div>
+  <div class="nav-btn" onclick="go('checkin',this)" id="nav-checkin"><span class="ico">📍</span>Check-in</div>
+  <div class="nav-btn" onclick="go('hist',this)"><span class="ico">📋</span>Histórico</div>
+  <div class="nav-btn" onclick="go('cal',this)"><span class="ico">📅</span>Calendário</div>
+  <div class="nav-btn" onclick="go('rel',this)"><span class="ico">📄</span>Relatório</div>
+</nav>
+
+<div class="pages" id="main-pages" style="display:none">
+
+<!-- ===== RESUMO ===== -->
+<div id="pg-resumo" class="pg on">
+  <div class="hero">
+    <div class="ico">📱</div>
+    <h1>iPhone 14 Pro Max</h1>
+    <p>Acordo de Pagamento · Diária R$150</p>
+    <div id="role-badge"></div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Progresso do pagamento</span><span id="pct-txt">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-info">
+      <span id="prog-pago" class="green">R$0 pago</span>
+      <span id="prog-rest" class="muted">0 dias restantes</span>
+    </div>
+  </div>
+  <div class="grid4">
+    <div class="stat"><div class="lbl">💰 Total</div><div class="val gold">R$4.700</div></div>
+    <div class="stat"><div class="lbl">✅ Pago</div><div class="val green" id="s-pago">R$0</div></div>
+    <div class="stat"><div class="lbl">⏳ Saldo</div><div class="val red" id="s-saldo">R$4.700</div></div>
+    <div class="stat"><div class="lbl">📅 Dias</div><div class="val blue" id="s-dias">0</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Próximos sábados previstos</div>
+    <div id="prox-sab"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+  <div class="alert alert-gold">💡 <b>Feriados:</b> Cada feriado trabalhado remove o último sábado da lista.</div>
+</div>
+
+<!-- ===== CHECK-IN ===== -->
+<div id="pg-checkin" class="pg">
+  <div id="readonly-checkin" class="readonly-msg" style="display:none">👁️ Modo visualização — apenas o funcionário pode registrar check-ins</div>
+
+  <div class="clock-box">
+    <div class="clock-time" id="clk">--:--:--</div>
+    <div class="clock-date" id="clk-date"></div>
+  </div>
+
+  <div class="status-bar" id="ci-bar">
+    <div class="dot-off" id="ci-dot"></div>
+    <div class="status-text" id="ci-txt"><b>Sem turno ativo</b></div>
+    <div class="status-time" id="ci-hr"></div>
+  </div>
+
+  <div id="form-checkin">
+    <!-- FOTO ENTRADA -->
+    <div class="card" id="card-foto-in">
+      <div class="card-title">Foto de Entrada</div>
+      <div class="cam-box" id="cam-in-box">
+        <span style="font-size:1.5rem">📷</span>
+        <span>Toque para tirar foto</span>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="inp-foto-in" style="display:none" onchange="handleFotoLocal(this,'in')">
+      <button class="btn btn-out" style="margin-top:0" onclick="document.getElementById('inp-foto-in').click()">📷 Tirar Foto de Entrada</button>
+    </div>
+
+    <!-- GPS -->
+    <div class="card">
+      <div class="card-title">Localização GPS</div>
+      <div class="map-box" id="gps-box">
+        <div style="font-size:1.4rem">📍</div>
+        <div style="color:var(--muted);font-size:.8rem;margin-top:4px">Clique para capturar localização</div>
+      </div>
+      <button class="btn btn-out" style="margin-top:0" onclick="getGPS()">📡 Capturar Localização</button>
+    </div>
+
+    <div class="fgroup">
+      <label>Tipo de dia</label>
+      <select id="tipo-dia"><option value="sabado">Sábado</option><option value="feriado">Feriado</option></select>
+    </div>
+    <div class="fgroup">
+      <label>Observação (opcional)</label>
+      <textarea id="obs-in" rows="2" placeholder="Ex: Montagem de vitrine..."></textarea>
+    </div>
+
+    <div id="area-in"><button class="btn btn-gold" id="btn-entrada" onclick="doEntrada()">✅ Registrar Entrada</button></div>
+
+    <div id="area-out" style="display:none">
+      <div class="card">
+        <div class="card-title">Foto de Saída</div>
+        <div class="cam-box" id="cam-out-box">
+          <span style="font-size:1.5rem">📷</span>
+          <span>Toque para tirar foto de saída</span>
+        </div>
+        <input type="file" accept="image/*" capture="environment" id="inp-foto-out" style="display:none" onchange="handleFotoLocal(this,'out')">
+        <button class="btn btn-out" style="margin-top:0" onclick="document.getElementById('inp-foto-out').click()">📷 Tirar Foto de Saída</button>
+      </div>
+      <button class="btn btn-green" onclick="doSaida()">🏁 Registrar Saída · Abater R$150</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HISTÓRICO ===== -->
+<div id="pg-hist" class="pg">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:1.1rem;font-weight:600">Registros</div>
+    <span class="badge b-gold" id="total-badge">0 dias</span>
+  </div>
+  <div id="hist-list"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+</div>
+
+<!-- ===== CALENDÁRIO ===== -->
+<div id="pg-cal" class="pg">
+  <div class="alert alert-blue">📅 Sábados calculados automaticamente. Feriados você adiciona manualmente.</div>
+  <div class="card">
+    <div class="card-title">Cronograma até quitar</div>
+    <div id="cal-list"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+  <div id="form-feriado">
+    <div class="sec-lbl">➕ Adicionar Feriado Trabalhado</div>
+    <div class="card">
+      <div class="fgroup"><label>Data do feriado</label><input type="date" id="fer-data"></div>
+      <div class="fgroup"><label>Nome do feriado</label><input type="text" id="fer-nome" placeholder="Ex: Corpus Christi"></div>
+      <button class="btn btn-gold" onclick="addFeriado()">Registrar Feriado</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RELATÓRIO ===== -->
+<div id="pg-rel" class="pg">
+  <div style="background:linear-gradient(135deg,rgba(201,168,76,.08),rgba(201,168,76,.02));border:1px solid rgba(201,168,76,.2);border-radius:var(--r);padding:18px;margin-bottom:14px;text-align:center">
+    <div style="font-size:1.1rem;font-weight:700;color:var(--gold2);margin-bottom:4px">🤝 Relatório Oficial</div>
+    <div style="font-size:.75rem;color:var(--muted)">Documento transparente para seu empregador</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Acordo de Pagamento</div>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:14px">Objeto: <span style="color:var(--text)">iPhone 14 Pro Max — compra parcelada em serviços</span></div>
+    <div class="grid4" style="margin-bottom:14px">
+      <div class="stat"><div class="lbl">Total</div><div class="val gold">R$4.700</div></div>
+      <div class="stat"><div class="lbl">Diária</div><div class="val blue">R$150</div></div>
+      <div class="stat"><div class="lbl">Pago</div><div class="val green" id="rel-pago">R$0</div></div>
+      <div class="stat"><div class="lbl">Saldo</div><div class="val red" id="rel-saldo">R$4.700</div></div>
+    </div>
+    <div class="div"></div>
+    <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Histórico completo</div>
+    <div id="rel-list"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+    <div class="div"></div>
+    <div style="font-size:.65rem;color:var(--muted)">Gerado em: <span id="rel-gerado" style="font-family:'JetBrains Mono',monospace;color:var(--blue)"></span></div>
+  </div>
+  <button class="btn btn-gold" onclick="compartilhar()">📤 Compartilhar Relatório</button>
+  <button class="btn btn-out" onclick="copiarTexto()">📋 Copiar como Texto</button>
+  <button class="btn btn-out" style="margin-top:10px;color:var(--red);border-color:rgba(224,92,92,.3)" onclick="logout()">🚪 Sair</button>
+</div>
+
+</div><!-- /pages -->
+
+<!-- MODAL -->
+<div class="overlay" id="modal-ov" onclick="if(event.target===this)fecharModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="m-title">Confirmar</h3>
+    <div class="modal-body" id="m-body"></div>
+    <button class="btn btn-green" onclick="confirmar()">✅ Confirmar · Abater R$150</button>
+    <button class="btn btn-out" onclick="fecharModal()">Cancelar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────
+const TOTAL = 4700, DIARIA = 150;
+const API = ''; // mesmo origem
+
+// ─── ESTADO ────────────────────────────────────────────────
+let PIN = '';
+let ROLE = ''; // 'usuario' ou 'patron'
+let REGS = [];
+let turnoAtivo = null; // {id, tipo, entrada, lat, lng, fotoInFile}
+let gpsLat = null, gpsLng = null;
+let fotoInFile = null, fotoOutFile = null;
+let fotoInPreview = null, fotoOutPreview = null;
+
+// ─── PIN ───────────────────────────────────────────────────
+let pinBuffer = '';
+
+function pinKey(n){
+  if(!n) return;
+  if(pinBuffer.length >= 4) return;
+  pinBuffer += n;
+  atualizarDots();
+  if(pinBuffer.length === 4) setTimeout(tentarLogin, 200);
+}
+function pinDel(){
+  pinBuffer = pinBuffer.slice(0,-1);
+  atualizarDots();
+  document.getElementById('pin-error').textContent='';
+}
+function atualizarDots(){
+  for(let i=0;i<4;i++){
+    document.getElementById('pd'+i).classList.toggle('on', i < pinBuffer.length);
+  }
+}
+async function tentarLogin(){
+  try{
+    const res = await fetch(API+'/api/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({pin: pinBuffer})
+    });
+    if(res.ok){
+      const d = await res.json();
+      PIN = pinBuffer;
+      ROLE = d.role;
+      document.getElementById('login-screen').classList.add('hide');
+      document.getElementById('main-nav').style.display='flex';
+      document.getElementById('main-pages').style.display='block';
+      // Patrão não vê aba check-in
+      if(ROLE === 'patron'){
+        document.getElementById('nav-checkin').style.display='none';
+      }
+      await carregarRegistros();
+      renderTudo();
+    } else {
+      document.getElementById('pin-error').textContent='PIN incorreto. Tente novamente.';
+      pinBuffer=''; atualizarDots();
+      // Shake
+      const dots = document.querySelector('.pin-dots');
+      dots.style.animation='shake .4s ease';
+      setTimeout(()=>dots.style.animation='',500);
+    }
+  } catch(e){
+    document.getElementById('pin-error').textContent='Erro de conexão com o servidor.';
+    pinBuffer=''; atualizarDots();
+  }
+}
+
+function logout(){
+  PIN=''; ROLE=''; REGS=[]; pinBuffer='';
+  atualizarDots();
+  document.getElementById('login-screen').classList.remove('hide');
+  document.getElementById('main-nav').style.display='none';
+  document.getElementById('main-pages').style.display='none';
+  document.getElementById('pin-error').textContent='';
+}
+
+// ─── API ───────────────────────────────────────────────────
+async function carregarRegistros(){
+  try{
+    const res = await fetch(API+`/api/registros?pin=${PIN}`);
+    if(res.ok) REGS = await res.json();
+  } catch(e){ showToast('Erro ao carregar dados','err'); }
+}
+
+async function criarRegistro(data){
+  const res = await fetch(API+'/api/registros',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({...data, pin: PIN})
+  });
+  if(!res.ok) throw new Error('Erro ao criar registro');
+  return await res.json();
+}
+
+async function registrarSaida(id, saida){
+  const res = await fetch(API+`/api/registros/${id}/saida`,{
+    method:'PATCH',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({saida, pin: PIN})
+  });
+  if(!res.ok) throw new Error('Erro ao registrar saída');
+  return await res.json();
+}
+
+async function uploadFoto(regId, tipo, file){
+  const fd = new FormData();
+  fd.append('tipo', tipo);
+  fd.append('pin', PIN);
+  fd.append('file', file);
+  const res = await fetch(API+`/api/registros/${regId}/foto`,{method:'POST',body:fd});
+  if(!res.ok) throw new Error('Erro no upload da foto');
+  return await res.json();
+}
+
+// ─── NAVEGAÇÃO ─────────────────────────────────────────────
+function go(id, btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ─── RELÓGIO ───────────────────────────────────────────────
+function tick(){
+  const n=new Date();
+  const el=document.getElementById('clk');
+  const dt=document.getElementById('clk-date');
+  if(el) el.textContent=n.toLocaleTimeString('pt-BR');
+  if(dt) dt.textContent=n.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+}
+tick(); setInterval(tick,1000);
+
+function fmtDate(d){
+  return String(d.getDate()).padStart(2,'0')+'/'+
+         String(d.getMonth()+1).padStart(2,'0')+'/'+
+         d.getFullYear();
+}
+
+// ─── GPS ───────────────────────────────────────────────────
+function getGPS(){
+  const box=document.getElementById('gps-box');
+  if(!navigator.geolocation){
+    box.innerHTML=`<div style="font-size:1.4rem">❌</div><div style="color:var(--red);font-size:.78rem;margin-top:4px">GPS não disponível</div>`;
+    return;
+  }
+  box.innerHTML='<div style="font-size:1.4rem">🔄</div><div style="color:var(--muted);font-size:.78rem;margin-top:4px">Buscando...</div>';
+  navigator.geolocation.getCurrentPosition(p=>{
+    gpsLat=p.coords.latitude; gpsLng=p.coords.longitude;
+    const url=`https://maps.google.com/?q=${gpsLat},${gpsLng}`;
+    box.innerHTML=`<div style="font-size:1.4rem">✅</div>
+      <div style="color:var(--green);font-size:.8rem;font-weight:600;margin-top:4px">Localização capturada!</div>
+      <div class="map-coords">${gpsLat.toFixed(6)}, ${gpsLng.toFixed(6)}</div>
+      <div style="font-size:.65rem;color:var(--muted);margin-top:4px">Precisão ±${Math.round(p.coords.accuracy)}m</div>
+      <a href="${url}" target="_blank" style="display:inline-block;margin-top:8px;font-size:.72rem;color:var(--blue);text-decoration:none">🗺️ Ver no Maps</a>`;
+    showToast('📍 GPS registrado!');
+  },e=>{
+    let msg=e.message;
+    if(e.code===1) msg='Permissão negada — permita a localização';
+    if(e.code===3) msg='Tempo esgotado — tente novamente';
+    box.innerHTML=`<div style="font-size:1.4rem">❌</div><div style="color:var(--red);font-size:.78rem;margin-top:4px">${msg}</div>`;
+    showToast('Erro no GPS','err');
+  },{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+
+// ─── FOTO LOCAL ────────────────────────────────────────────
+function handleFotoLocal(inp, tipo){
+  const file=inp.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const data=e.target.result;
+    const ts=new Date().toLocaleString('pt-BR');
+    const box=document.getElementById(tipo==='in'?'cam-in-box':'cam-out-box');
+    box.innerHTML=`<img src="${data}"><div class="cam-timestamp">${ts}</div>`;
+    if(tipo==='in'){ fotoInFile=file; fotoInPreview=data; }
+    else { fotoOutFile=file; fotoOutPreview=data; }
+    showToast('📷 Foto registrada!');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── CHECK-IN ──────────────────────────────────────────────
+async function doEntrada(){
+  const btn=document.getElementById('btn-entrada');
+  btn.disabled=true; btn.textContent='Registrando...';
+  const hr=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const hoje=fmtDate(new Date());
+  const tipo=document.getElementById('tipo-dia').value;
+  const obs=document.getElementById('obs-in').value;
+  try{
+    const reg = await criarRegistro({
+      tipo, nome: tipo==='feriado'?'Feriado trabalhado':'Sábado trabalhado',
+      data: hoje, entrada: hr, valor: DIARIA,
+      lat: gpsLat, lng: gpsLng, obs
+    });
+    // Upload foto entrada se tiver
+    if(fotoInFile){
+      try{ await uploadFoto(reg.id,'in',fotoInFile); } catch(e){ console.warn('foto in error',e); }
+    }
+    turnoAtivo = {id: reg.id, tipo, entrada: hr};
+    await carregarRegistros();
+    renderCheckin();
+    renderTudo();
+    showToast('✅ Entrada registrada às '+hr);
+  } catch(e){
+    showToast('Erro ao registrar entrada','err');
+  } finally {
+    btn.disabled=false; btn.textContent='✅ Registrar Entrada';
+  }
+}
+
+async function doSaida(){
+  if(!turnoAtivo) return;
+  const hr=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const t=turnoAtivo;
+  document.getElementById('m-title').textContent='Confirmar Saída';
+  document.getElementById('m-body').innerHTML=
+    `<b>Tipo:</b> ${t.tipo==='feriado'?'🎌 Feriado':'📅 Sábado'}<br>
+     <b>Entrada:</b> ${t.entrada}<br>
+     <b>Saída:</b> ${hr}<br>
+     <b>GPS:</b> ${gpsLat?gpsLat.toFixed(5)+', '+gpsLng.toFixed(5):'Não registrado'}<br>
+     <b>Foto saída:</b> ${fotoOutFile?'✅ Sim':'❌ Não'}<br><br>
+     Confirmar abate de <b style="color:var(--green)">R$${calcValorDia()},00</b> da dívida?`;
+  window._pendHr = hr;
+  document.getElementById('modal-ov').classList.add('on');
+}
+
+async function confirmar(){
+  const hr = window._pendHr;
+  const btn = document.querySelector('#modal-ov .btn-green');
+  btn.disabled=true; btn.textContent='Salvando...';
+  try{
+    await registrarSaida(turnoAtivo.id, hr);
+    if(fotoOutFile){
+      try{ await uploadFoto(turnoAtivo.id,'out',fotoOutFile); } catch(e){ console.warn('foto out error',e); }
+    }
+    turnoAtivo=null; fotoInFile=null; fotoOutFile=null; fotoInPreview=null; fotoOutPreview=null; gpsLat=null; gpsLng=null;
+    await carregarRegistros();
+    fecharModal(); renderTudo();
+    const pago = REGS.reduce((s,r)=>s+r.valor,0);
+    showToast('🎉 Diária confirmada! Saldo: R$'+fmt(TOTAL-pago));
+  } catch(e){
+    showToast('Erro ao salvar saída','err');
+  } finally {
+    btn.disabled=false; btn.textContent='✅ Confirmar · Abater R$150';
+  }
+}
+
+function fecharModal(){ document.getElementById('modal-ov').classList.remove('on'); }
+
+function calcValorDia(){
+  const pago = REGS.reduce((s,r)=>s+r.valor,0);
+  const saldo = TOTAL - pago;
+  return Math.min(DIARIA, saldo);
+}
+
+// ─── FERIADO MANUAL ────────────────────────────────────────
+async function addFeriado(){
+  const d=document.getElementById('fer-data').value;
+  const n=document.getElementById('fer-nome').value.trim();
+  if(!d||!n){showToast('Preencha data e nome','err');return;}
+  const df=fmtDate(new Date(d+'T12:00'));
+  if(REGS.find(r=>r.data===df&&r.tipo==='feriado')){showToast('Feriado já registrado','err');return;}
+  try{
+    await criarRegistro({
+      tipo:'feriado', nome:n+' · abatido da última parcela',
+      data:df, entrada:null, saida:null, valor:DIARIA, obs:'Manual'
+    });
+    await carregarRegistros(); renderTudo();
+    document.getElementById('fer-data').value='';
+    document.getElementById('fer-nome').value='';
+    showToast('🎌 Feriado registrado!');
+  } catch(e){ showToast('Erro ao registrar feriado','err'); }
+}
+
+// ─── SÁBADOS ───────────────────────────────────────────────
+function getSabados(){
+  const sabs=[];
+  let d=new Date(2026,3,25); // 25/04/2026
+  const feriadosTrabalhados=REGS.filter(r=>r.tipo==='feriado').length;
+  const pagoEmFeriados=feriadosTrabalhados*DIARIA;
+  const saldoParaSabados=TOTAL-pagoEmFeriados;
+  const sabadosCompletos=Math.floor(saldoParaSabados/DIARIA);
+  const resto=saldoParaSabados%DIARIA;
+  const totalSabs=sabadosCompletos+(resto>0?1:0);
+  for(let i=0;i<totalSabs;i++){
+    const key=fmtDate(d);
+    const isUltimo=(i===totalSabs-1);
+    const valorDia=isUltimo&&resto>0?resto:DIARIA;
+    sabs.push({str:key,feito:!!REGS.find(r=>r.data===key&&r.tipo==='sabado'),num:i+1,valor:valorDia,isUltimo});
+    d=new Date(d); d.setDate(d.getDate()+7);
+  }
+  return sabs;
+}
+
+// ─── RENDER ────────────────────────────────────────────────
+function renderTudo(){
+  renderResumo(); renderCheckin(); renderHist(); renderCal(); renderRel();
+}
+
+function renderResumo(){
+  const pago=REGS.reduce((s,r)=>s+r.valor,0);
+  const saldo=TOTAL-pago;
+  const pct=(pago/TOTAL*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('pct-txt').textContent=pct.toFixed(1).replace('.',',')+'%';
+  document.getElementById('prog-pago').textContent='R$'+fmt(pago)+' pago';
+  document.getElementById('prog-rest').textContent=Math.ceil(saldo/DIARIA)+' dias restantes';
+  document.getElementById('s-pago').textContent='R$'+fmt(pago);
+  document.getElementById('s-saldo').textContent='R$'+fmt(saldo);
+  document.getElementById('s-dias').textContent=REGS.length;
+  // Badge de role
+  const rb=document.getElementById('role-badge');
+  if(ROLE==='usuario') rb.innerHTML='<span class="role-badge role-u">👷 Funcionário</span>';
+  else rb.innerHTML='<span class="role-badge role-p">👁️ Patrão</span>';
+  // Próximos sábados
+  const sabs=getSabados().filter(s=>!s.feito).slice(0,5);
+  let acc=pago;
+  document.getElementById('prox-sab').innerHTML=sabs.length?sabs.map((s,i)=>{
+    acc+=s.valor;
+    const ap=Math.max(0,TOTAL-acc);
+    const tag=s.isUltimo&&s.valor<DIARIA?` <span class="badge b-gold">Parcial R$${s.valor}</span>`:'';
+    return `<div class="item">
+      <div class="item-ico ico-pend">${i+1}</div>
+      <div class="item-body">
+        <div class="item-date">Sábado · ${s.str}</div>
+        <div class="item-title">Sábado #${s.num}${tag}</div>
+        <div class="item-sub">Saldo após: R$${fmt(ap)}</div>
+      </div>
+      <div class="item-amt muted">-R$${s.valor}</div>
+    </div>`;
+  }).join(''):'<div style="color:var(--green);font-size:.88rem;padding:10px 0">🎉 Todos os sábados cumpridos!</div>';
+}
+
+function renderCheckin(){
+  const isPatron = ROLE==='patron';
+  document.getElementById('readonly-checkin').style.display=isPatron?'block':'none';
+  document.getElementById('form-checkin').style.display=isPatron?'none':'block';
+  if(isPatron) return;
+
+  const dot=document.getElementById('ci-dot');
+  const txt=document.getElementById('ci-txt');
+  const hr=document.getElementById('ci-hr');
+  const aIn=document.getElementById('area-in');
+  const aOut=document.getElementById('area-out');
+  if(turnoAtivo){
+    dot.className='dot-live';
+    txt.innerHTML=`<b>Turno ativo</b> · ${turnoAtivo.tipo==='feriado'?'🎌 Feriado':'📅 Sábado'}`;
+    hr.textContent='Entrada: '+turnoAtivo.entrada;
+    aIn.style.display='none'; aOut.style.display='block';
+    document.getElementById('card-foto-in').style.display='none';
+  } else {
+    dot.className='dot-off';
+    txt.innerHTML='<b>Sem turno ativo</b>';
+    hr.textContent='';
+    aIn.style.display='block'; aOut.style.display='none';
+    document.getElementById('card-foto-in').style.display='block';
+    // Reset previews
+    document.getElementById('cam-in-box').innerHTML=`<span style="font-size:1.5rem">📷</span><span>Toque para tirar foto</span>`;
+    document.getElementById('cam-out-box').innerHTML=`<span style="font-size:1.5rem">📷</span><span>Toque para tirar foto de saída</span>`;
+    document.getElementById('gps-box').innerHTML=`<div style="font-size:1.4rem">📍</div><div style="color:var(--muted);font-size:.8rem;margin-top:4px">Clique para capturar localização</div>`;
+  }
+}
+
+function renderHist(){
+  const badge=document.getElementById('total-badge');
+  badge.textContent=REGS.length+(REGS.length===1?' dia':' dias');
+  if(!REGS.length){
+    document.getElementById('hist-list').innerHTML='<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:.85rem">Nenhum registro ainda.</div>';
+    return;
+  }
+  const sorted=[...REGS].reverse();
+  document.getElementById('hist-list').innerHTML=sorted.map(r=>{
+    const ico=r.tipo==='feriado'?'🎌':'📅';
+    const cls=r.tipo==='feriado'?'ico-hol':'ico-paid';
+    const loc=r.lat?`${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}`:'—';
+    const mapsUrl=r.lat?`https://maps.google.com/?q=${r.lat},${r.lng}`:'';
+    const fotos=[
+      r.foto_in?`<img src="${r.foto_in}" class="thumb" onclick="verFoto('${r.foto_in}')" title="Foto entrada">`:'',
+      r.foto_out?`<img src="${r.foto_out}" class="thumb" onclick="verFoto('${r.foto_out}')" title="Foto saída">`:''
+    ].filter(Boolean).join(' ');
+    return `<div class="item">
+      <div class="item-ico ${cls}">${ico}</div>
+      <div class="item-body">
+        <div class="item-date">${r.data} · ${r.tipo==='feriado'?'Feriado':'Sábado'}</div>
+        <div class="item-title">${r.nome}</div>
+        ${r.entrada?`<div class="item-sub" style="color:var(--green)">⏰ ${r.entrada} → ${r.saida||'em andamento'}</div>`:''}
+        ${r.lat?`<div class="item-sub"><a href="${mapsUrl}" target="_blank" style="color:var(--blue);text-decoration:none">📍 ${loc}</a></div>`:'<div class="item-sub">📍 —</div>'}
+        ${fotos?`<div style="margin-top:8px;display:flex;gap:6px">${fotos}</div>`:''}
+      </div>
+      <div class="item-amt green">-R$${r.valor}</div>
+    </div>`;
+  }).join('');
+}
+
+function verFoto(src){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:700;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML=`<img src="${src}" style="max-width:100%;max-height:90vh;border-radius:10px">`;
+  ov.onclick=()=>ov.remove();
+  document.body.appendChild(ov);
+}
+
+function renderCal(){
+  const sabs=getSabados();
+  const pago=REGS.reduce((s,r)=>s+r.valor,0);
+  let acc=pago;
+  document.getElementById('cal-list').innerHTML=sabs.map(s=>{
+    const feito=s.feito;
+    if(!feito) acc+=s.valor;
+    const ap=Math.max(0,TOTAL-(feito?pago:acc));
+    const tag=s.isUltimo&&s.valor<DIARIA?` <span class="badge b-gold">R$${s.valor}</span>`:'';
+    return `<div class="item">
+      <div class="item-ico ${feito?'ico-paid':'ico-exp'}">${feito?'✅':'○'}</div>
+      <div class="item-body">
+        <div class="item-date">${s.str}</div>
+        <div class="item-title">Sábado #${s.num}${tag}</div>
+        <div class="item-sub">Saldo após: R$${fmt(feito?Math.max(0,TOTAL-pago):ap)}</div>
+      </div>
+      <span class="badge ${feito?'b-green':'b-muted'}">${feito?'Pago':'Pendente'}</span>
+    </div>`;
+  }).join('');
+  // Esconder form feriado para patrão
+  document.getElementById('form-feriado').style.display=ROLE==='patron'?'none':'block';
+}
+
+function renderRel(){
+  const pago=REGS.reduce((s,r)=>s+r.valor,0);
+  const saldo=TOTAL-pago;
+  document.getElementById('rel-pago').textContent='R$'+fmt(pago);
+  document.getElementById('rel-saldo').textContent='R$'+fmt(saldo);
+  document.getElementById('rel-gerado').textContent=new Date().toLocaleString('pt-BR');
+  document.getElementById('rel-list').innerHTML=REGS.map((r,i)=>{
+    const mapsUrl=r.lat?`https://maps.google.com/?q=${r.lat},${r.lng}`:'';
+    return `<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);font-size:.78rem;gap:8px">
+      <div style="flex:1;min-width:0">
+        <div style="color:var(--muted);font-size:.65rem">#${i+1} · ${r.data}</div>
+        <div style="font-weight:500">${r.tipo==='feriado'?'🎌 Feriado':'📅 Sábado'} — ${r.nome}</div>
+        ${r.entrada?`<div style="font-size:.65rem;color:var(--muted)">⏰ ${r.entrada} → ${r.saida||'?'}</div>`:''}
+        ${r.lat?`<div style="font-size:.65rem"><a href="${mapsUrl}" target="_blank" style="color:var(--blue);text-decoration:none">📍 ${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}</a></div>`:''}
+        ${r.foto_in||r.foto_out?`<div style="font-size:.65rem;color:var(--muted)">📷 ${[r.foto_in&&'Foto entrada',r.foto_out&&'Foto saída'].filter(Boolean).join(' · ')}</div>`:''}
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;color:var(--green);white-space:nowrap">-R$${r.valor}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── COMPARTILHAR ──────────────────────────────────────────
+function gerarTexto(){
+  const pago=REGS.reduce((s,r)=>s+r.valor,0);
+  const saldo=TOTAL-pago;
+  let t='📱 ACORDO DE PAGAMENTO — IPHONE 14 PRO MAX\n'+'─'.repeat(40)+'\n';
+  t+=`Valor total: R$4.700,00\nTotal pago: R$${fmt(pago)},00\nSaldo devedor: R$${fmt(saldo)},00\nDias trabalhados: ${REGS.length}\n\nHISTÓRICO:\n\n`;
+  REGS.forEach((r,i)=>{
+    t+=`#${i+1} | ${r.data} | ${r.tipo==='feriado'?'Feriado':'Sábado'}`;
+    if(r.entrada) t+=` | ${r.entrada}→${r.saida||'?'}`;
+    if(r.lat) t+=` | GPS:${r.lat.toFixed(4)},${r.lng.toFixed(4)}`;
+    if(r.foto_in) t+=' | Foto entrada:✅';
+    if(r.foto_out) t+=' | Foto saída:✅';
+    t+=` | -R$${r.valor}\n`;
+  });
+  t+=`\nGerado em: ${new Date().toLocaleString('pt-BR')}`;
+  return t;
+}
+function compartilhar(){
+  const txt=gerarTexto();
+  if(navigator.share) navigator.share({title:'Prestação de Contas iPhone',text:txt});
+  else navigator.clipboard.writeText(txt).then(()=>showToast('📋 Copiado!'));
+}
+function copiarTexto(){ navigator.clipboard.writeText(gerarTexto()).then(()=>showToast('📋 Texto copiado!')); }
+
+// ─── UTILS ─────────────────────────────────────────────────
+function fmt(v){ return Number(v).toLocaleString('pt-BR'); }
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(type==='err'?' err':type==='warn'?' warn':'');
+  t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2800);
+}
+
+// Shake animation CSS
+const style=document.createElement('style');
+style.textContent=`@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
